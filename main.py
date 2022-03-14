@@ -47,12 +47,49 @@ MAIN_FONT = pygame.font.Font(os.path.join("assets/fonts", "prstart.ttf"), 20)
 # endregion
 
 
+class Ship:
+    """Ship class"""
+
+    def __init__(self, x, y, health=100):
+        self.x = x
+        self.y = y
+        self.health = health
+        self.ship_img = None
+        self.laser_img = None
+        self.lasers = []
+        self.cool_down_counter = 0
+
+    def draw(self, window):
+        """Draw the player"""
+        window.blit(self.ship_img, (self.x, self.y))
+
+    def get_width(self):
+        """Return the width of the ship"""
+        return self.ship_img.get_width()
+
+    def get_height(self):
+        """Return the height of the ship"""
+        return self.ship_img.get_height()
+
+
+class Player(Ship):
+    def __init__(self, x, y, health=100):
+        super().__init__(x, y, health)
+        self.ship_img = YELLOW_SPACESHIP
+        self.laser_img = YELLOW_LASER
+        self.mask = pygame.mask.from_surface(self.ship_img)
+        self.max_health = health
+
+
 def main():
     """Main function"""
     run = True
     FPS = 60
     level = 1
     lives = 5
+    player_vel = 5
+    player = Player(WIDTH / 2 - YELLOW_SPACESHIP.get_width() /
+                    2, HEIGHT - YELLOW_SPACESHIP.get_height() - 50)
     clock = pygame.time.Clock()
 
     def redraw_window():
@@ -66,6 +103,9 @@ def main():
         WINDOW.blit(lives_label, (10, 10))
         WINDOW.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
 
+        # Draw player
+        player.draw(WINDOW)
+
         pygame.display.update()
 
     while run:
@@ -78,6 +118,20 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     run = False
+
+        keys = pygame.key.get_pressed()
+        # Left
+        if keys[pygame.K_a] or keys[pygame.K_LEFT] and player.x - player_vel > 0:
+            player.x -= player_vel
+        # Right
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT] and player.x + player_vel + player.get_width() < WIDTH:
+            player.x += player_vel
+        # Up
+        if keys[pygame.K_w] or keys[pygame.K_UP] and player.y - player_vel > 100:
+            player.y -= player_vel
+        # Down
+        if keys[pygame.K_s] or keys[pygame.K_DOWN] and player.y + player_vel + player.get_height() < HEIGHT:
+            player.y += player_vel
 
 
 main()
