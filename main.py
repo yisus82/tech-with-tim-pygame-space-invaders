@@ -73,6 +73,8 @@ class Ship:
 
 
 class Player(Ship):
+    """Player class"""
+
     def __init__(self, x, y, health=100):
         super().__init__(x, y, health)
         self.ship_img = YELLOW_SPACESHIP
@@ -81,12 +83,33 @@ class Player(Ship):
         self.max_health = health
 
 
+class Enemy(Ship):
+    """Enemy class"""
+    COLOR_MAP = {
+        "red": (RED_SPACESHIP, RED_LASER),
+        "green": (GREEN_SPACESHIP, GREEN_LASER),
+        "blue": (BLUE_SPACESHIP, BLUE_LASER)
+    }
+
+    def __init__(self, x, y, color, health=100):
+        super().__init__(x, y, health)
+        self.ship_img, self.laser_img = self.COLOR_MAP[color]
+        self.mask = pygame.mask.from_surface(self.ship_img)
+
+    def move(self, vel):
+        """Move the enemy"""
+        self.y += vel
+
+
 def main():
     """Main function"""
     run = True
     FPS = 60
-    level = 1
+    level = 0
     lives = 5
+    enemies = []
+    wave_length = 0
+    enemy_vel = 1
     player_vel = 5
     player = Player(WIDTH / 2 - YELLOW_SPACESHIP.get_width() /
                     2, HEIGHT - YELLOW_SPACESHIP.get_height() - 50)
@@ -103,6 +126,10 @@ def main():
         WINDOW.blit(lives_label, (10, 10))
         WINDOW.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
 
+        # Draw enemies
+        for enemy in enemies:
+            enemy.draw(WINDOW)
+
         # Draw player
         player.draw(WINDOW)
 
@@ -110,8 +137,8 @@ def main():
 
     while run:
         clock.tick(FPS)
-        redraw_window()
 
+        # Check for events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -119,6 +146,7 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     run = False
 
+        # Update player position
         keys = pygame.key.get_pressed()
         # Left
         if keys[pygame.K_a] or keys[pygame.K_LEFT] and player.x - player_vel > 0:
@@ -132,6 +160,21 @@ def main():
         # Down
         if keys[pygame.K_s] or keys[pygame.K_DOWN] and player.y + player_vel + player.get_height() < HEIGHT:
             player.y += player_vel
+
+        # Create enemies
+        if len(enemies) == 0:
+            level += 1
+            wave_length += 5
+            for _ in range(wave_length):
+                enemy = Enemy(random.randint(50, WIDTH - 50),
+                              random.randint(-1500, -100), random.choice(["red", "blue", "green"]))
+                enemies.append(enemy)
+
+        # Update enemies
+        for enemy in enemies:
+            enemy.move(enemy_vel)
+
+        redraw_window()
 
 
 main()
