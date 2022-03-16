@@ -169,6 +169,14 @@ class Enemy(Ship):
         """Move the enemy"""
         self.y += vel
 
+    def shoot(self):
+        """Fire a laser"""
+        if self.cool_down_counter == 0:
+            laser = Laser(self.x - self.ship_img.get_width() /
+                          4, self.y, self.laser_img)
+            self.lasers.append(laser)
+            self.cool_down_counter = 1
+
 
 def collide(obj1, obj2):
     """Check for collision"""
@@ -232,7 +240,7 @@ def main():
 
         # Check if game is over
         if game_over:
-            if game_over_count >= FPS * 5:
+            if game_over_count >= FPS * 3:
                 run = False
             else:
                 continue
@@ -275,6 +283,8 @@ def main():
         # Update enemies
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
+            if random.randrange(0, 2 * FPS) == 1:
+                enemy.shoot()
             enemy.move_lasers(laser_vel, player)
             if enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
