@@ -283,6 +283,10 @@ def main():
         # Update enemies
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
+            if collide(enemy, player):
+                player.health -= 10
+                enemies.remove(enemy)
+                continue
             if random.randrange(0, 2 * FPS) == 1:
                 enemy.shoot()
             enemy.move_lasers(laser_vel, player)
