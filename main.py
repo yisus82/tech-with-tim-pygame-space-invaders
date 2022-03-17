@@ -151,6 +151,18 @@ class Player(Ship):
                         if laser in self.lasers:
                             self.lasers.remove(laser)
 
+    def draw(self, window):
+        """Draw the player"""
+        super().draw(window)
+        self.health_bar(window)
+
+    def health_bar(self, window):
+        """Draw the health bar"""
+        pygame.draw.rect(window, (255, 0, 0), (self.x, self.y +
+                         self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
+        pygame.draw.rect(window, (0, 255, 0), (self.x, self.y + self.ship_img.get_height() +
+                         10, self.ship_img.get_width() * (self.health / self.max_health), 10))
+
 
 class Enemy(Ship):
     """Enemy class"""
@@ -265,7 +277,7 @@ def main():
         if keys[pygame.K_w] or keys[pygame.K_UP] and player.y - player_vel > 100:
             player.y -= player_vel
         # Move down
-        if keys[pygame.K_s] or keys[pygame.K_DOWN] and player.y + player_vel + player.get_height() < HEIGHT:
+        if keys[pygame.K_s] or keys[pygame.K_DOWN] and player.y + player_vel + player.get_height() + 20 < HEIGHT:
             player.y += player_vel
         # Shoot
         if keys[pygame.K_SPACE]:
