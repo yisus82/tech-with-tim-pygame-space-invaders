@@ -310,4 +310,26 @@ def main():
         player.move_lasers(-laser_vel, enemies)
 
 
-main()
+def main_menu():
+    """Main menu"""
+    run = True
+    while run:
+        WINDOW.blit(BACKGROUND, (0, 0))
+        texts = ["Press ENTER to play", "or ESCAPE to exit"]
+        for i, text in enumerate(texts):
+            title_label = MAIN_FONT.render(text, 1, (255, 255, 255))
+            WINDOW.blit(title_label, (WIDTH / 2 - title_label.get_width() /
+                                      2, (40 * i) + HEIGHT / 2 - title_label.get_height() / 2))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    main()
+                elif event.key == pygame.K_ESCAPE:
+                    run = False
+    pygame.quit()
+
+
+main_menu()
