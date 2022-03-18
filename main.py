@@ -136,6 +136,7 @@ class Player(Ship):
         self.laser_img = YELLOW_LASER
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health
+        self.score = 0
 
     def move_lasers(self, vel, objs):
         """Move the lasers, delete the ones that are off screen or colliding with ships"""
@@ -148,6 +149,7 @@ class Player(Ship):
                 for obj in objs:
                     if laser.is_colliding(obj):
                         objs.remove(obj)
+                        self.score += obj.points
                         if laser in self.lasers:
                             self.lasers.remove(laser)
 
@@ -167,14 +169,14 @@ class Player(Ship):
 class Enemy(Ship):
     """Enemy class"""
     COLOR_MAP = {
-        "red": (RED_SPACESHIP, RED_LASER),
-        "green": (GREEN_SPACESHIP, GREEN_LASER),
-        "blue": (BLUE_SPACESHIP, BLUE_LASER)
+        "red": (RED_SPACESHIP, RED_LASER, 30),
+        "green": (GREEN_SPACESHIP, GREEN_LASER, 20),
+        "blue": (BLUE_SPACESHIP, BLUE_LASER, 10)
     }
 
     def __init__(self, x, y, color, health=100):
         super().__init__(x, y, health)
-        self.ship_img, self.laser_img = self.COLOR_MAP[color]
+        self.ship_img, self.laser_img, self.points = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
 
     def move(self, vel):
@@ -221,8 +223,12 @@ def main():
 
         # Draw texts
         lives_label = MAIN_FONT.render(f"Lives: {lives}", 1, (255, 255, 255))
+        score_label = MAIN_FONT.render(
+            f"Score: {player.score}", 1, (255, 255, 255))
         level_label = MAIN_FONT.render(f"Level: {level}", 1, (255, 255, 255))
         WINDOW.blit(lives_label, (10, 10))
+        WINDOW.blit(score_label, (WIDTH / 2 -
+                    score_label.get_width() + 100, 10))
         WINDOW.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
 
         # Draw enemies
@@ -260,7 +266,7 @@ def main():
         # Check for events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                pygame.quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     run = False
@@ -297,6 +303,7 @@ def main():
             enemy.move(enemy_vel)
             if collide(enemy, player):
                 player.health -= 10
+                player.score += enemy.points
                 enemies.remove(enemy)
                 continue
             if random.randrange(0, 2 * FPS) == 1:
